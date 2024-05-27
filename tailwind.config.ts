@@ -19,6 +19,8 @@ const config = {
     },
     extend: {
       colors: {
+        'custom-orange': '#FC4100',
+        'custom-yellow': '#FFC55A',
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
