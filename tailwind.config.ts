@@ -19,6 +19,8 @@ const config = {
     },
     extend: {
       colors: {
+        fondo: "#FFC55A",
+        logo: "#FC4100",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
