@@ -24,6 +24,7 @@ model User {
   UserCareerPath  UserCareerPath[]
   UserKnowledge   UserKnowledge[]
   UserPreferences UserPreferences[]
+  Recommendation  Recommendation[]
 }
 
 model Account {
@@ -79,6 +80,45 @@ model Authenticator {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
+}
+
+model Recommendation {
+  id        String   @id @default(cuid())
+  userId    String
+  createdAt DateTime @default(now())
+  subjectId String
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+}
+
+model Subject {
+  id          String @id @default(cuid())
+  name        String
+  description String
+
+  resources      StudyResource[]
+  Recommendation Recommendation[]
+}
+
+model StudyResource {
+  id          String       @id @default(cuid())
+  name        String
+  description String
+  url         String?
+  type        ResourceType
+
+  subjects  Subject[]
+  subjectId String?
+}
+
+enum ResourceType {
+  VIDEO
+  ARTICLE
+  COURSE
+  BOOK
+  PODCAST
+  OTHER
 }
 
 model Knowledge {
