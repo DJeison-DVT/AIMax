@@ -21,6 +21,7 @@ const config = {
       colors: {
         'custom-orange': '#FC4100',
         'custom-yellow': '#FFC55A',
+        'custom-blue': '#00215E',
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
