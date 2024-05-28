@@ -1,36 +1,91 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+## Setting up
 
-First, run the development server:
+### Install project dependencies
+
+```bash
+npm install
+```
+
+The file .env and .env.local will need to be setup with the corresponding data
+
+### .env
+
+```txt
+DATABASE_URL=
+```
+
+### .env.local
+
+```txt
+AUTH_SECRET=
+AUTH_GITHUB_ID=
+AUTH_GITHUB_SECRET=
+NODE_ENV=development
+```
+
+Auth secret can be obtained through
+
+```bash
+npx auth secret
+```
+
+The current version of the project uses a local psql database, so DATABASE_URL would look something like `"postgresql://user_name:password@localhost:5432/db_name"`, if you haven't made a local version of the database you use the following code to initialize everything. Make sure to be logged in into the user postgres
+
+### Databse
+
+```psql
+CREATE DATABASE aimax;
+CREATE USER aimax WITH PASSWORD 'your_password';
+GRANT ALL PRIVILEGES ON DATABASE aimax TO aimax;
+\c aimax
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO aimax;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO aimax;
+GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO aimax;
+ALTER USER aimax WITH CREATEDB;
+```
+
+### Updating the schema
+
+Once you have an available database and have the secrets set up you can migrate the schema onto the db with prisma, this will need to be done each time the schema changes
+
+```bash
+npx prisma migrate dev
+```
+
+## Running
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Helpful commands and remainders
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Always work on a branch, once you are in one you can work and commit all you want, the most important branch is named `main`:w
+
+```bash
+git checkout -b branch-name
+```
+
+- push to your branches origin, afterwards you can go to the project online and request a pull request (PR)
+
+```bash
+git push origin branch-name
+```
+
+- once a branch is merged and you will start another branch you can delete it locally with
+
+```bash
+git branch -d branch-name
+```
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
-## Learn More
+## Dependencies Directory
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- [Next.js Documentation](https://nextjs.org/docs) - Important for SSR and API
+- [Tailwindcss Documentation](https://tailwindcss.com/docs/flex-basis) - CSS
+- [Shadcn/ui Documentation](https://ui.shadcn.com/docs) - CSS component library, if you are making something functional like a button or a toast check if it exists in here
+- [Prisma Documentation](https://www.prisma.io/docs/orm/overview/introduction) - Data retrieval for API, data saving
+- [Auth.js Documentation](https://authjs.dev/getting-started) - Registers Session and manages authentication
