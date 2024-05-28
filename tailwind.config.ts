@@ -19,6 +19,9 @@ const config = {
     },
     extend: {
       colors: {
+        'custom-orange': '#FC4100',
+        'custom-yellow': '#FFC55A',
+        'custom-blue': '#00215E',
         fondo: "#FFC55A",
         logo: "#FC4100",
         border: "hsl(var(--border))",
