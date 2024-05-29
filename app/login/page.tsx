@@ -4,7 +4,7 @@ import SignInButton from "../components/signin-button";
 
 function LoginPage() {
   return (
-    <div className="flex justify-center items-center min-h-screen bg-custom-yellow">
+    <div className="flex justify-center items-center h-full bg-custom-yellow">
       <Card className="w-[350px] bg-custom-orange rounded-3xl">
         <CardHeader className="flex flex-col items-center">
           <CardTitle className="text-white text-4xl font-light italic">
