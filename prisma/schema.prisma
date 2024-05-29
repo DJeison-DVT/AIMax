@@ -18,8 +18,13 @@ model User {
   // Optional for WebAuthn support
   Authenticator Authenticator[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  UserInterest    UserInterest[]
+  UserCareerPath  UserCareerPath[]
+  UserKnowledge   UserKnowledge[]
+  UserPreferences UserPreferences[]
+  Recommendation  Recommendation[]
 }
 
 model Account {
@@ -75,4 +80,112 @@ model Authenticator {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
+}
+
+model Recommendation {
+  id        String   @id @default(cuid())
+  userId    String
+  createdAt DateTime @default(now())
+  subjectId String
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+}
+
+model Subject {
+  id          String @id @default(cuid())
+  name        String
+  description String
+
+  resources      StudyResource[]
+  Recommendation Recommendation[]
+}
+
+model StudyResource {
+  id          String       @id @default(cuid())
+  name        String
+  description String
+  url         String?
+  type        ResourceType
+
+  subjects  Subject[]
+  subjectId String?
+}
+
+enum ResourceType {
+  VIDEO
+  ARTICLE
+  COURSE
+  BOOK
+  PODCAST
+  OTHER
+}
+
+model Knowledge {
+  id   String @id @default(cuid())
+  name String
+
+  UserKnowledge UserKnowledge[]
+}
+
+model UserKnowledge {
+  userId      String
+  knowledgeId String
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  knowledge Knowledge @relation(fields: [knowledgeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, knowledgeId])
+}
+
+model Interest {
+  id   String @id @default(cuid())
+  name String
+
+  UserInterest UserInterest[]
+}
+
+model UserInterest {
+  userId     String
+  interestId String
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interest Interest @relation(fields: [interestId], references: [id], onDelete: Cascade)
+
+  @@id([userId, interestId])
+}
+
+model CareerPath {
+  id   String @id @default(cuid())
+  name String
+
+  UserCareerPath UserCareerPath[]
+}
+
+model UserCareerPath {
+  userId       String
+  careerPathId String
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  careerPath CareerPath @relation(fields: [careerPathId], references: [id], onDelete: Cascade)
+
+  @@id([userId, careerPathId])
+}
+
+model UserPreferences {
+  id                String   @id @default(cuid())
+  userId            String
+  languages         String[]
+  importance        String[]
+  location          String
+  easily_distracted Boolean
+  study_methods     String[]
+  special_attention String?
+  time_goal         String
+  reasons           String[]
+
+  pronouns String?
+  identity String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
