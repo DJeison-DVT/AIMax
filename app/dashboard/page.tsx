@@ -1,56 +1,92 @@
 import React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator"
 
-function DashboardPage() {
+const recomendations = "Recomendations Here lalalalalal";
+const recomenTitle= "Python"
+
+
+function Recommendation() {
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", backgroundColor: "#FFC55A", height: "200vh", padding: "20px" }}>
-      <div style={{ display: "flex", width: "100%", maxWidth: "3000px", textAlign: "center" }}>
-        <div style={{ flex: 2, justifyContent: "center",  marginRight: "20px" }}>
-          <span className="text-white font-bold text-3xl">This Week’s Recommendations</span>
-            <div style = {{ display: "flex", flexDirection: "row", justifyContent: "space-between", padding: "20px", borderRadius: "50px", marginTop: "200px", marginLeft: "300px", marginRight: "300px" }}>
-              <ButtonDemo />
-              <ButtonDemo2 />
-            </div>
-            <div style = {{ display: "flex", flexDirection: "row", justifyContent: "space-between", padding: "20px", borderRadius: "10px", marginTop: "200px", marginLeft: "300px", marginRight: "300px" }}>
-              <ButtonDemo />
-              <ButtonDemo2 />
-            </div>
+    <div className='flex flex-col'>
+      <div className='RecomendationTitle text-white font-inherit text-3xl text-center mt-24 ml-2'>
+        {recomenTitle}
+        <div className='RecomendationContainer w-[950px] rounded-lg mt-2 ml-12 mr-12'>
+          <h4 className='RecomendationText text-white font-inherit text-2xl text-center mt-4'>
+            {recomendations}
+          </h4>
         </div>
-        <div style={{ flex: 1 }}>
-          <ScrollAreaDemo />
+        <div className='flex flex-row justify-between p-5 rounded-lg mt-1 mx-72'>
+          <Button>Courses</Button>
+          <Button>Books</Button>
         </div>
       </div>
     </div>
   );
 }
 
-const tags = Array.from({ length: 50 }).map(
-  (_, i, a) => `v1.2.0-beta.${a.length - i}`
-);
+function DashboardPage() {
+	return (
+		<div className='flex bg-fondo p-5 overflow-hidden h-full'>
+      <div className="flex-1 flex flex-col">
 
-export function ScrollAreaDemo() {
-  return (
-    <ScrollArea className="rounded-md border" style={{ height: "600px", width: "500px" }}>
-      <div className="p-4">
-        <h4 className="mb-4 text-sm font-medium leading-none">Tags</h4>
-        {tags.map((tag) => (
-          <div key={tag} className="text-sm">
-            {tag}
+
+
+				<h3 className='text-white font-bold text-4xl text-center'>
+					This Week’s Recommendations
+				</h3>
+          <div className="flex flex-col justify-around flex-1">
+          <Recommendation />
+          <Recommendation />
           </div>
+      </div>
+    
+			<ScrollAreaDemo />
+		</div>
+	);
+}
+
+const tags = ["Python", "Java"];
+const tags2 = [
+	"Python Crash Course by Eric Matthes This book is great for beginners, providing a comprehensive introduction to Python programming. It starts with basic concepts and gradually moves to more complex topics, including classes, file handling, and testing. The second part of the book applies what youve learned to specific projects, such as developing a web application or a game. Automate the Boring Stuff with Python by Al Sweigart Ideal for those who want to immediately apply Python to solve real-world problems. This book focuses on writing simple programs to automate tasks such as updating spreadsheets, parsing PDFs, or renaming files, making it particularly useful for office workers, students, and anyone who regularly performs repetitive computer tasks.",
+];
+
+function Interest() {
+  return (
+    <div>
+      <h4 className='interestTitle text-white font-inherit text-xl text-left'>
+        Interests
+      </h4>
+      <div className='interestContainer bg-logo  rounded-lg mt-2 mb-2 p-4'>
+        {tags.map((tag) => (
+          <li
+            className='interestText text-white font-inherit text-left ml-2'
+            key={tag}
+          >
+            {tag}
+          </li>
         ))}
       </div>
-    </ScrollArea>
+    </div>
   );
+
 }
 
-export function ButtonDemo() {
-  return <Button>Courses</Button>
+function ScrollAreaDemo() {
+	return (
+    <div className="flex flex-col">
+
+		<ScrollArea className='w-[500px] flex-1 h-full'>
+      <Interest />
+      <Interest />
+      <Interest />
+      <Interest />
+		</ScrollArea> 
+          </div>
+	);
 }
 
-export function ButtonDemo2() {
-  return <Button>Books</Button>
-}
 
 
 export default DashboardPage;
