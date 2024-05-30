@@ -173,19 +173,65 @@ model UserCareerPath {
 }
 
 model UserPreferences {
-  id                String   @id @default(cuid())
+  id                String  @id @default(cuid())
   userId            String
-  languages         String[]
-  importance        String[]
   location          String
-  easily_distracted Boolean
-  study_methods     String[]
   special_attention String?
   time_goal         String
-  reasons           String[]
 
   pronouns String?
   identity String?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                  User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  PreferencesLanguage   PreferencesLanguage[]
+  PreferencesImportance PreferencesImportance[]
+  PreferencesReason     PreferencesReason[]
+}
+
+model Language {
+  id                  String                @id @default(cuid())
+  name                String
+  PreferencesLanguage PreferencesLanguage[]
+}
+
+model PreferencesLanguage {
+  languageId    String
+  preferencesId String
+
+  language    Language        @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  preferences UserPreferences @relation(fields: [preferencesId], references: [id], onDelete: Cascade)
+
+  @@id([languageId, preferencesId])
+}
+
+model Importance {
+  id                    String                  @id @default(cuid())
+  name                  String
+  PreferencesImportance PreferencesImportance[]
+}
+
+model PreferencesImportance {
+  importanceId  String
+  preferencesId String
+
+  importance  Importance      @relation(fields: [importanceId], references: [id], onDelete: Cascade)
+  preferences UserPreferences @relation(fields: [preferencesId], references: [id], onDelete: Cascade)
+
+  @@id([importanceId, preferencesId])
+}
+
+model Reason {
+  id                String              @id @default(cuid())
+  name              String
+  PreferencesReason PreferencesReason[]
+}
+
+model PreferencesReason {
+  reasonId      String
+  preferencesId String
+
+  reason      Reason          @relation(fields: [reasonId], references: [id], onDelete: Cascade)
+  preferences UserPreferences @relation(fields: [preferencesId], references: [id], onDelete: Cascade)
+
+  @@id([reasonId, preferencesId])
 }
