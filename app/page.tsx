@@ -1,14 +1,16 @@
-"use client";
+import { signIn } from "@/auth";
+import { Button } from "@/components/ui/button";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
-import React from "react";
-import { useRouter } from "next/navigation";
+export default async function Home() {
+	const session = await auth();
 
-export default function Home() {
-	const router = useRouter();
+	if (session?.user?.id) {
+		redirect("/initial-preferences/3-things-distraction");
 
-	const handleStartClick = () => {
-		router.push("/login"); // Ruta a la página de login
-	};
+		redirect("/dashboard");
+	}
 
 	return (
 		<main className='w-full h-screen flex flex-col'>
@@ -25,12 +27,14 @@ export default function Home() {
 							<h1 className='text-white text-7xl font-light italic mb-4'>
 								AIMAX
 							</h1>
-							<button
-								className='bg-custom-orange w-40 font-light italic text-white py-2 px-4 rounded-3xl'
-								onClick={handleStartClick}
+							<form
+								action={async () => {
+									"use server";
+									await signIn();
+								}}
 							>
-								START
-							</button>
+								<Button type='submit'>Sign in</Button>
+							</form>
 						</div>
 					</div>
 				</div>
