@@ -49,6 +49,7 @@ const pushPreferences = async () => {
 		easyDistract,
 		selectedOptions,
 	};
+	console.log("Data to be pushed to the server", data);
 
 	function parseValue(value: string): any {
 		try {

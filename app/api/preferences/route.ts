@@ -11,6 +11,14 @@ function extract_information(json: { [key: string]: any }) {
 	json["programmingLanguages"] = json["programmingLanguages"]["selected"];
 	json["importance"] = json["selectedOptions"];
 	delete json["selectedOptions"];
+	json["interests"] = json["programmingLearnLanguages"];
+	delete json["programmingLearnLanguages"];
+	json["knowledge"] = json["programmingLanguages"];
+	json["knowledge"] = json["knowledge"].concat(json["favTech"]);
+	//check for repeats
+
+	delete json["programmingLanguages"];
+	delete json["favTech"];
 	return json;
 }
 
@@ -71,6 +79,31 @@ export async function POST(request: Request) {
 			}
 		);
 		const { reasonId } = await reponseReason.json();
+
+		const responseInterest = await fetch("http://localhost:3000/api/interest", {
+			method: "POST",
+			body: JSON.stringify({
+				interests: data.interests,
+			}),
+			headers: {
+				"Content-Type": "application/json",
+			},
+		});
+		const { interestIds } = await responseInterest.json();
+
+		const responseKnowledge = await fetch(
+			"http://localhost:3000/api/knowledge",
+			{
+				method: "POST",
+				body: JSON.stringify({
+					knowledge: data.knowledge,
+				}),
+				headers: {
+					"Content-Type": "application/json",
+				},
+			}
+		);
+		const { knowledgeIds } = await responseKnowledge.json();
 
 		const preferences = await prisma.userPreferences.create({
 			data: {
@@ -136,6 +169,41 @@ export async function POST(request: Request) {
 				},
 			},
 		});
+
+		for (let interest of interestIds) {
+			await prisma.userInterest.create({
+				data: {
+					user: {
+						connect: {
+							id: session.user.id,
+						},
+					},
+					interest: {
+						connect: {
+							id: interest,
+						},
+					},
+				},
+			});
+		}
+
+		for (let knowledge of knowledgeIds) {
+			await prisma.userKnowledge.create({
+				data: {
+					user: {
+						connect: {
+							id: session.user.id,
+						},
+					},
+					knowledge: {
+						connect: {
+							id: knowledge,
+						},
+					},
+				},
+			});
+		}
+		console.log("Preferences created successfully");
 
 		return new Response(JSON.stringify({ preferences }), { status: 200 });
 	} catch (error) {

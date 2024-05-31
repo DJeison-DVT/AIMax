@@ -13,7 +13,7 @@ export default async function Layout({
 	if (session && session.user && session.user.id) {
 		const pref = await hasPreferences(session.user.id);
 
-		if (pref) {
+		if (pref && pref.id && pref.userId) {
 			redirect(`/dashboard`);
 		}
 	}

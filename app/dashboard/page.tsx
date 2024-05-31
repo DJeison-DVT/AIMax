@@ -37,7 +37,9 @@ async function DashboardPage() {
 
 	if (session.user && session.user.id) {
 		const pref = await hasPreferences(session.user.id);
-		if (!pref) {
+		console.log("Pref", pref);
+
+		if (!pref || !pref.id || !pref.userId) {
 			redirect(`/initial-preferences/3-things-distraction`);
 		}
 	}
@@ -97,13 +99,19 @@ async function Sidebar({ session }: SidebarProps) {
 
 	let importances = [];
 	const preferences = await fetchPreferences(session);
-	let reasons = [];
-	if (preferences) {
-		importances = preferences.PreferencesImportance.map(
-			(item: any) => item.importance
-		);
-		reasons = preferences.PreferencesReason.map((item: any) => item.reason);
+
+	if (
+		!preferences ||
+		!preferences.PreferencesImportance ||
+		!preferences.PreferencesReason
+	) {
+		return null;
 	}
+	let reasons = [];
+	importances = preferences.PreferencesImportance.map(
+		(item: any) => item.importance
+	);
+	reasons = preferences.PreferencesReason.map((item: any) => item.reason);
 	return (
 		<div className='flex flex-col'>
 			<ScrollArea className='w-[500px] flex-1 h-full'>
