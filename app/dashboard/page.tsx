@@ -6,7 +6,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { hasPreferences } from "../lib/preferences";
 
-const recomendations = "Recomendations Here lalalalalal";
+const recomendations = "Display OpenAI result here";
 const recomenTitle = "Python";
 
 function Recommendation() {
@@ -37,7 +37,6 @@ async function DashboardPage() {
 
 	if (session.user && session.user.id) {
 		const pref = await hasPreferences(session.user.id);
-		console.log("Pref", pref);
 
 		if (!pref || !pref.id || !pref.userId) {
 			redirect(`/initial-preferences/3-things-distraction`);
@@ -62,14 +61,15 @@ async function DashboardPage() {
 
 interface PreferenceCardProps {
 	tags: { name: string; id: string }[];
+	title: string;
 }
 
-function PreferenceCard({ tags }: PreferenceCardProps) {
+function PreferenceCard({ tags, title }: PreferenceCardProps) {
 	return (
 		<div>
-			<h4 className='interestTitle text-white font-inherit text-xl text-left'>
-				Interests
-			</h4>
+			<div className='interestTitle text-white font-inherit text-xl text-left'>
+				{title}
+			</div>
 			<div className='interestContainer bg-logo  rounded-lg mt-2 mb-2 p-4'>
 				{tags.map((tag, index) => (
 					<li
@@ -112,11 +112,28 @@ async function Sidebar({ session }: SidebarProps) {
 		(item: any) => item.importance
 	);
 	reasons = preferences.PreferencesReason.map((item: any) => item.reason);
+
+	let userInterest;
+	if (preferences.userInterest) {
+		userInterest = preferences.userInterest.map((item: any) => item.interest);
+	}
+	let userKnowledge;
+	if (preferences.userKnowledge) {
+		userKnowledge = preferences.userKnowledge.map(
+			(item: any) => item.knowledge
+		);
+	}
 	return (
 		<div className='flex flex-col'>
 			<ScrollArea className='w-[500px] flex-1 h-full'>
-				<PreferenceCard tags={importances} />
-				<PreferenceCard tags={reasons} />
+				{preferences.userInterest && (
+					<PreferenceCard tags={userInterest} title='Interests' />
+				)}
+				{preferences.userKnowledge && (
+					<PreferenceCard tags={userKnowledge} title='Knowledge' />
+				)}
+				<PreferenceCard tags={importances} title='Important stuff' />
+				<PreferenceCard tags={reasons} title='Motivation' />
 			</ScrollArea>
 		</div>
 	);

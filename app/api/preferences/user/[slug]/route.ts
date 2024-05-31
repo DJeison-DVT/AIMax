@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/prisma/db";
+import { UserKnowledge } from "@prisma/client";
 
 export async function GET(
 	req: NextRequest,
@@ -7,31 +8,64 @@ export async function GET(
 ) {
 	try {
 		const userId = params.slug;
-		let preferences;
+
+		// const userKnowledge: ({
+		//     knowledge: {
+		//         id: string;
+		//         name: string;
+		//     };
+		// } & {
+		//     userId: string;
+		//     knowledgeId: string;
+		// })[]
+		let userKnowledge: {
+			knowledge: { id: string; name: string };
+			userId: string;
+			knowledgeId: string;
+		}[] = [];
+		let userInterest: {
+			interest: { id: string; name: string };
+			userId: string;
+			interestId: string;
+		}[] = [];
+
+		try {
+			userKnowledge = await prisma.userKnowledge.findMany({
+				where: { userId: userId },
+				include: { knowledge: true },
+			});
+		} catch (error) {
+			console.error("Error fetching user knowledge:", error);
+		}
+
+		try {
+			userInterest = await prisma.userInterest.findMany({
+				where: { userId: userId },
+				include: { interest: true },
+			});
+		} catch (error) {
+			console.error("Error fetching user interest:", error);
+		}
+
+		let preferences = null;
 		try {
 			preferences = await prisma.userPreferences.findFirst({
 				where: { userId: userId },
 				include: {
 					PreferencesLanguage: {
-						include: {
-							language: true,
-						},
+						include: { language: true },
 					},
 					PreferencesImportance: {
-						include: {
-							importance: true,
-						},
+						include: { importance: true },
 					},
 					PreferencesReason: {
-						include: {
-							reason: true,
-						},
+						include: { reason: true },
 					},
 				},
 			});
 
 			if (!preferences) {
-				return new Response(
+				return new NextResponse(
 					JSON.stringify({ message: "Preference not found" }),
 					{
 						status: 404,
@@ -40,7 +74,8 @@ export async function GET(
 				);
 			}
 		} catch (error) {
-			return new Response(
+			console.error("Error fetching preferences:", error);
+			return new NextResponse(
 				JSON.stringify({ message: "Error fetching preferences" }),
 				{
 					status: 500,
@@ -49,12 +84,19 @@ export async function GET(
 			);
 		}
 
-		return new Response(JSON.stringify(preferences), {
+		const userPreferences = {
+			...preferences,
+			userInterest,
+			userKnowledge,
+		};
+
+		return new NextResponse(JSON.stringify(userPreferences), {
 			status: 200,
 			headers: { "Content-Type": "application/json" },
 		});
 	} catch (error) {
-		return new Response(JSON.stringify({ message: "API error" }), {
+		console.error("API error:", error);
+		return new NextResponse(JSON.stringify({ message: "API error" }), {
 			status: 500,
 			headers: { "Content-Type": "application/json" },
 		});
