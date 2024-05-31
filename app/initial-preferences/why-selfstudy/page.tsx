@@ -7,6 +7,7 @@ import PageTransition from "@/app/components/PageTransition";
 import QuestionHeader from "@/app/components/QuestionHeader";
 import SelectionButton from "@/app/components/SelectionButton";
 import pages from "@/app/routes/routes";
+import { auth } from "@/auth";
 
 interface Data {
 	[key: string]: any | null;
@@ -79,14 +80,21 @@ const pushPreferences = async () => {
 		}
 	}
 
-	console.log("Preferences:", data);
+	const response = await fetch("/api/preferences", {
+		method: "POST",
+		body: JSON.stringify(parsedData),
+		headers: {
+			"Content-Type": "application/json",
+		},
+	});
+
+	console.log("Preferences pushed to the server", response);
 };
 
 export default function StudyReason() {
 	const [selectedOption, setSelectedOption] = useState<string | null>(null);
 	const router = useRouter();
 	const currentPageIndex = pages.indexOf("/initial-preferences/why-selfstudy");
-
 	useEffect(() => {
 		const savedOption = localStorage.getItem("studyReason");
 		if (savedOption) {
