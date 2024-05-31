@@ -2,14 +2,18 @@ import { signIn } from "@/auth";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { hasPreferences } from "@/app/lib/preferences";
 
 export default async function Home() {
 	const session = await auth();
 
 	if (session?.user?.id) {
-		redirect("/initial-preferences/3-things-distraction");
-
-		redirect("/dashboard");
+		const pref = await hasPreferences(session.user.id);
+		if (pref && pref.id && pref.userId) {
+			redirect(`/dashboard`);
+		} else {
+			redirect(`/initial-preferences/3-things-distraction`);
+		}
 	}
 
 	return (
