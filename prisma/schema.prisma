@@ -180,6 +180,7 @@ model UserPreferences {
   location          String
   special_attention String?
   time_goal         String
+  study_method      StudyResource[]
 
   pronouns String?
   identity String?
