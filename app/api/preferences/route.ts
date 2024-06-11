@@ -1,31 +1,56 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/prisma/db";
 import { auth } from "@/auth";
+import StudyReason from "@/app/initial-preferences/why-selfstudy/page";
 
 function extract_information(json: { [key: string]: any }) {
-	json["studyMethods"] = json["studyMethods"]["selected"];
 	json["specialAttention"] =
 		["Sí", "si", "Si"].indexOf(json["specialAttention"]) > -1 ? true : false;
-	json["programmingLearnLanguages"] =
-		json["programmingLearnLanguages"]["selected"];
-	json["programmingLanguages"] = json["programmingLanguages"]["selected"];
-	json["importance"] = json["selectedOptions"];
-	delete json["selectedOptions"];
-	json["interests"] = json["programmingLearnLanguages"];
-	delete json["programmingLearnLanguages"];
-	json["knowledge"] = json["programmingLanguages"];
-	json["knowledge"] = json["knowledge"].concat(json["favTech"]);
-	//check for repeats
 
+	json["importance"] = parseStringifiedList(json["selectedOptions"]);
+	delete json["selectedOptions"];
+
+	json["interests"] = parseStringifiedList(json["programmingLearnLanguages"]);
+	delete json["programmingLearnLanguages"];
+
+	json["knowledge"] = parseStringifiedList(json["programmingLanguages"]);
+	json["knowledge"] = json["knowledge"].concat(
+		parseStringifiedList(json["favTech"])
+	);
 	delete json["programmingLanguages"];
 	delete json["favTech"];
+
+	// Parsing additional fields
+	json["studyMethods"] = parseStringifiedList(json["studyMethods"]);
+	json["language"] = parseStringifiedList(json["language"]);
+	json["importance"] = parseStringifiedList(json["importance"]);
+
+	// Handling concatenated arrays in 'knowledge' field if it appears in the input
+	if (
+		json["knowledge"].length > 0 &&
+		typeof json["knowledge"][0] === "string"
+	) {
+		json["knowledge"] = json["knowledge"].flatMap((item: any) =>
+			item.split('","').map((subItem: any) => subItem.replace(/[\[\]]/g, ""))
+		);
+	}
+
 	return json;
+}
+
+function parseStringifiedList(str: string): string[] {
+	try {
+		return JSON.parse(str);
+	} catch {
+		return [];
+	}
 }
 
 export async function POST(request: Request) {
 	try {
 		const json = await request.json();
 		const data = extract_information(json);
+		console.log("Extracted data", data);
 
 		const session = await auth();
 		if (!session || !session.user) {
@@ -71,7 +96,7 @@ export async function POST(request: Request) {
 			{
 				method: "POST",
 				body: JSON.stringify({
-					reason: data.studyReason,
+					studyReason: data.studyReason,
 				}),
 				headers: {
 					"Content-Type": "application/json",
@@ -122,86 +147,107 @@ export async function POST(request: Request) {
 		});
 
 		for (let lang of languageIds) {
-			await prisma.preferencesLanguage.create({
-				data: {
-					preferences: {
-						connect: {
-							id: preferences.id,
+			try {
+				await prisma.preferencesLanguage.create({
+					data: {
+						preferences: {
+							connect: {
+								id: preferences.id,
+							},
+						},
+						language: {
+							connect: {
+								id: lang,
+							},
 						},
 					},
-					language: {
-						connect: {
-							id: lang,
-						},
-					},
-				},
-			});
+				});
+			} catch (error) {
+				console.log("Error creating language preference", error);
+			}
 		}
 
 		for (let imp of importanceIds) {
-			await prisma.preferencesImportance.create({
+			try {
+				await prisma.preferencesImportance.create({
+					data: {
+						preferences: {
+							connect: {
+								id: preferences.id,
+							},
+						},
+						importance: {
+							connect: {
+								id: imp,
+							},
+						},
+					},
+				});
+			} catch (error) {
+				console.log("Error creating importance preference", error);
+			}
+		}
+
+		try {
+			await prisma.preferencesReason.create({
 				data: {
 					preferences: {
 						connect: {
 							id: preferences.id,
 						},
 					},
-					importance: {
+					reason: {
 						connect: {
-							id: imp,
+							id: reasonId,
 						},
 					},
 				},
 			});
+		} catch (error) {
+			console.log("Error creating reason preference", error);
 		}
-
-		await prisma.preferencesReason.create({
-			data: {
-				preferences: {
-					connect: {
-						id: preferences.id,
-					},
-				},
-				reason: {
-					connect: {
-						id: reasonId,
-					},
-				},
-			},
-		});
 
 		for (let interest of interestIds) {
-			await prisma.userInterest.create({
-				data: {
-					user: {
-						connect: {
-							id: session.user.id,
+			try {
+				await prisma.userInterest.create({
+					data: {
+						user: {
+							connect: {
+								id: session.user.id,
+							},
+						},
+						interest: {
+							connect: {
+								id: interest,
+							},
 						},
 					},
-					interest: {
-						connect: {
-							id: interest,
-						},
-					},
-				},
-			});
+				});
+			} catch (error) {
+				console.log("Error creating interest preference", error);
+			}
 		}
 
+		console.log(knowledgeIds);
 		for (let knowledge of knowledgeIds) {
-			await prisma.userKnowledge.create({
-				data: {
-					user: {
-						connect: {
-							id: session.user.id,
+			try {
+				await prisma.userKnowledge.create({
+					data: {
+						user: {
+							connect: {
+								id: session.user.id,
+							},
+						},
+						knowledge: {
+							connect: {
+								id: knowledge,
+							},
 						},
 					},
-					knowledge: {
-						connect: {
-							id: knowledge,
-						},
-					},
-				},
-			});
+				});
+			} catch (error) {
+				console.log("Error creating knowledge preference", error);
+			}
 		}
 		console.log("Preferences created successfully");
 
