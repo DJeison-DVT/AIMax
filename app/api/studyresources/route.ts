@@ -20,7 +20,7 @@ export async function POST(request: Request) {
                 description,
                 url,
                 type,
-                subjects: { connect: { id: subjectId } },
+                subjectId,
             },
         });
         return new Response(JSON.stringify(resource), { status: 200 });

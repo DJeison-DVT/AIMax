@@ -1,5 +1,6 @@
 import prisma from "@/prisma/db";
 import openai from "@/openaiClient";
+import { auth } from "@/auth";
 
 const resourceTypeMapping: { [key: string]: "VIDEO" | "ARTICLE" | "COURSE" | "BOOK" | "PODCAST" | "OTHER" } = {
     "Online Course": "COURSE",
@@ -15,9 +16,14 @@ export async function POST(request: Request) {
     try {
         const { interests, knowledge, reasons, priorities, language } = await request.json();
 
-        const user = await prisma.user.findFirst(); // Obtén el primer usuario de la base de datos
+        const session = await auth();
+        if (!session || !session.user) {
+            return new Response("Unauthorized", { status: 401 });
+        }
+
+        const user = await prisma.user.findUnique({ where: { id: session.user.id } });
         if (!user) {
-            return new Response("No user found in the database", { status: 500 });
+            return new Response("User not found in the database", { status: 500 });
         }
 
         const prompt = `
@@ -77,6 +83,7 @@ export async function POST(request: Request) {
                         description: resource.description,
                         url: resource.URL || null,
                         type: resourceType,
+                        subjectId: subject.id,
                         subjects: { connect: { id: subject.id } },
                     },
                 });
@@ -101,7 +108,7 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
     try {
-        const recommendations = await prisma.recommendation.findMany({
+        const lastRecommendation = await prisma.recommendation.findMany({
             include: {
                 subject: {
                     include: {
@@ -112,7 +119,11 @@ export async function GET(request: Request) {
             },
         });
 
-        return new Response(JSON.stringify(recommendations), { status: 200 });
+        if (lastRecommendation.length === 0) {
+            return new Response("No recommendations found", { status: 404 });
+        }
+
+        return new Response(JSON.stringify(lastRecommendation[0]), { status: 200 });
     } catch (error) {
         console.log("Couldn't process request", error);
         return new Response("Server API Error", { status: 500 });
