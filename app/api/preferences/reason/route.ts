@@ -4,6 +4,7 @@ export async function POST(request: Request) {
 	try {
 		const { studyReason } = await request.json();
 
+		console.log("Study Reason", studyReason);
 		let reasonExists;
 		try {
 			reasonExists = await prisma.reason.findMany({
@@ -29,6 +30,7 @@ export async function POST(request: Request) {
 		} else {
 			reasonId = reasonExists[0].id;
 		}
+		console.log("Reason ID", reasonId);
 
 		return new Response(JSON.stringify({ reasonId }), { status: 200 });
 	} catch (error) {

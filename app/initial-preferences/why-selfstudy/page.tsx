@@ -49,47 +49,14 @@ const pushPreferences = async () => {
 		easyDistract,
 		selectedOptions,
 	};
-	console.log("Data to be pushed to the server", data);
-
-	function parseValue(value: string): any {
-		try {
-			const parsedValue = JSON.parse(value);
-
-			if (typeof parsedValue === "object" && parsedValue !== null) {
-				// Filter out empty key-value pairs and empty arrays from objects
-				for (const key in parsedValue) {
-					if (
-						parsedValue[key] === null ||
-						parsedValue[key] === "" ||
-						(Array.isArray(parsedValue[key]) && parsedValue[key].length === 0)
-					) {
-						delete parsedValue[key];
-					}
-				}
-			}
-			return parsedValue;
-		} catch (e) {
-			// Return the value as is if not JSON-like
-			return value;
-		}
-	}
-
-	const parsedData: Partial<Data> = {};
-	for (const key in data) {
-		if (data[key] !== null && data[key] !== "") {
-			parsedData[key as keyof Data] = parseValue(data[key] as string);
-		}
-	}
 
 	const response = await fetch("/api/preferences", {
 		method: "POST",
-		body: JSON.stringify(parsedData),
+		body: JSON.stringify(data),
 		headers: {
 			"Content-Type": "application/json",
 		},
 	});
-
-	console.log("Preferences pushed to the server", response);
 };
 
 export default function StudyReason() {
