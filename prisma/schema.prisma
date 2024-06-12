@@ -180,12 +180,12 @@ model UserPreferences {
   location          String
   special_attention String?
   time_goal         String
-  study_method      StudyResource[]
 
   pronouns String?
   identity String?
 
   user                  User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  PreferencesMethod     PreferencesMethod[]
   PreferencesLanguage   PreferencesLanguage[]
   PreferencesImportance PreferencesImportance[]
   PreferencesReason     PreferencesReason[]
@@ -237,4 +237,20 @@ model PreferencesReason {
   preferences UserPreferences @relation(fields: [preferencesId], references: [id], onDelete: Cascade)
 
   @@id([reasonId, preferencesId])
+}
+
+model Method {
+  id                String              @id @default(cuid())
+  name              String
+  PreferencesMethod PreferencesMethod[]
+}
+
+model PreferencesMethod {
+  methodId      String
+  preferencesId String
+
+  method      Method          @relation(fields: [methodId], references: [id], onDelete: Cascade)
+  preferences UserPreferences @relation(fields: [preferencesId], references: [id], onDelete: Cascade)
+
+  @@id([methodId, preferencesId])
 }

@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { CircleUserRound } from "lucide-react";
-import { auth } from "@/auth";
+import { auth, signIn, signOut } from "@/auth";
 
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { redirect } from "next/navigation";
 
 interface AvatarDemoProps {
 	src: string;
@@ -38,9 +39,26 @@ export default async function Header() {
 						Inbox{" "}
 					</Link>
 					{!session?.user && (
-						<Link href='/profile' className='text-white hover:underline'>
-							Sign Up{" "}
-						</Link>
+						<form
+							action={async (formData) => {
+								"use server";
+								await signIn();
+							}}
+						>
+							<button type='submit'>Sign in</button>
+						</form>
+					)}
+					{session?.user && (
+						<form
+							action={async (formData) => {
+								"use server";
+								await signOut();
+
+								redirect("/");
+							}}
+						>
+							<button type='submit'>Sign out</button>
+						</form>
 					)}
 				</nav>
 				{session?.user?.image ? (

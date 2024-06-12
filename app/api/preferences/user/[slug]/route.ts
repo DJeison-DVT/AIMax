@@ -9,15 +9,6 @@ export async function GET(
 	try {
 		const userId = params.slug;
 
-		// const userKnowledge: ({
-		//     knowledge: {
-		//         id: string;
-		//         name: string;
-		//     };
-		// } & {
-		//     userId: string;
-		//     knowledgeId: string;
-		// })[]
 		let userKnowledge: {
 			knowledge: { id: string; name: string };
 			userId: string;
@@ -61,6 +52,9 @@ export async function GET(
 					PreferencesReason: {
 						include: { reason: true },
 					},
+					PreferencesMethod: {
+						include: { method: true },
+					},
 				},
 			});
 
@@ -89,6 +83,8 @@ export async function GET(
 			userInterest,
 			userKnowledge,
 		};
+
+		console.log("userPreferences", userPreferences);
 
 		return new NextResponse(JSON.stringify(userPreferences), {
 			status: 200,

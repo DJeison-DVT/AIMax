@@ -130,6 +130,21 @@ export async function POST(request: Request) {
 		);
 		const { knowledgeIds } = await responseKnowledge.json();
 
+		const reponseMethod = await fetch(
+			"http://localhost:3000/api/preferences/method",
+			{
+				method: "POST",
+				body: JSON.stringify({
+					studyMethods: data.studyMethods,
+				}),
+				headers: {
+					"Content-Type": "application/json",
+				},
+			}
+		);
+
+		const { studyMethodsIds } = await reponseMethod.json();
+
 		const preferences = await prisma.userPreferences.create({
 			data: {
 				user: {
@@ -228,7 +243,6 @@ export async function POST(request: Request) {
 			}
 		}
 
-		console.log(knowledgeIds);
 		for (let knowledge of knowledgeIds) {
 			try {
 				await prisma.userKnowledge.create({
@@ -249,6 +263,28 @@ export async function POST(request: Request) {
 				console.log("Error creating knowledge preference", error);
 			}
 		}
+
+		for (let method of studyMethodsIds) {
+			try {
+				await prisma.preferencesMethod.create({
+					data: {
+						preferences: {
+							connect: {
+								id: preferences.id,
+							},
+						},
+						method: {
+							connect: {
+								id: method,
+							},
+						},
+					},
+				});
+			} catch (error) {
+				console.log("Error creating method preference", error);
+			}
+		}
+
 		console.log("Preferences created successfully");
 
 		return new Response(JSON.stringify({ preferences }), { status: 200 });
