@@ -84,8 +84,6 @@ export async function GET(
 			userKnowledge,
 		};
 
-		console.log("userPreferences", userPreferences);
-
 		return new NextResponse(JSON.stringify(userPreferences), {
 			status: 200,
 			headers: { "Content-Type": "application/json" },

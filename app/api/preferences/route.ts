@@ -8,6 +8,9 @@ function extract_information(json: { [key: string]: any }) {
 		["Sí", "si", "Si"].indexOf(json["specialAttention"]) > -1 ? true : false;
 
 	json["importance"] = parseStringifiedList(json["selectedOptions"]);
+
+	console.log("Importance", json["importance"]);
+	console.log("Selected Options", json["selectedOptions"]);
 	delete json["selectedOptions"];
 
 	json["interests"] = parseStringifiedList(json["programmingLearnLanguages"]);
@@ -23,7 +26,6 @@ function extract_information(json: { [key: string]: any }) {
 	// Parsing additional fields
 	json["studyMethods"] = parseStringifiedList(json["studyMethods"]);
 	json["language"] = parseStringifiedList(json["language"]);
-	json["importance"] = parseStringifiedList(json["importance"]);
 
 	// Handling concatenated arrays in 'knowledge' field if it appears in the input
 	if (
@@ -49,6 +51,7 @@ function parseStringifiedList(str: string): string[] {
 export async function POST(request: Request) {
 	try {
 		const json = await request.json();
+		console.log("Received data", json);
 		const data = extract_information(json);
 		console.log("Extracted data", data);
 
@@ -77,6 +80,7 @@ export async function POST(request: Request) {
 		);
 		const { languageIds } = await responseLang.json();
 
+		console.log("importance data", data.importance);
 		const responseImportance = await fetch(
 			"http://localhost:3000/api/preferences/importance",
 			{
@@ -178,7 +182,7 @@ export async function POST(request: Request) {
 					},
 				});
 			} catch (error) {
-				console.log("Error creating language preference", error);
+				console.log("Error creating language preference");
 			}
 		}
 
@@ -199,7 +203,7 @@ export async function POST(request: Request) {
 					},
 				});
 			} catch (error) {
-				console.log("Error creating importance preference", error);
+				console.log("Error creating importance preference");
 			}
 		}
 
@@ -219,7 +223,7 @@ export async function POST(request: Request) {
 				},
 			});
 		} catch (error) {
-			console.log("Error creating reason preference", error);
+			console.log("Error creating reason preference");
 		}
 
 		for (let interest of interestIds) {
@@ -239,7 +243,7 @@ export async function POST(request: Request) {
 					},
 				});
 			} catch (error) {
-				console.log("Error creating interest preference", error);
+				console.log("Error creating interest preference");
 			}
 		}
 
@@ -260,7 +264,7 @@ export async function POST(request: Request) {
 					},
 				});
 			} catch (error) {
-				console.log("Error creating knowledge preference", error);
+				console.log("Error creating knowledge preference");
 			}
 		}
 
@@ -281,7 +285,7 @@ export async function POST(request: Request) {
 					},
 				});
 			} catch (error) {
-				console.log("Error creating method preference", error);
+				console.log("Error creating method preference");
 			}
 		}
 
