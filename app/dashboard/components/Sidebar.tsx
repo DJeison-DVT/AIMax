@@ -1,5 +1,5 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Entity } from "../page";
+import { Entity, PreferenceProps } from "../page";
 
 interface PreferenceCardProps {
 	tags: { name: string; id: string }[];
@@ -14,23 +14,16 @@ function PreferenceCard({ tags, title }: PreferenceCardProps) {
 			</div>
 			<div className='interestContainer bg-logo  rounded-lg mt-2 mb-2 p-4'>
 				{tags.map((tag, index) => (
-					<li
+					<div
 						className='interestText text-white font-inherit text-left ml-2'
 						key={index}
 					>
 						{tag.name}
-					</li>
+					</div>
 				))}
 			</div>
 		</div>
 	);
-}
-
-export interface SidebarProps {
-	priorities: Entity[];
-	reasons: Entity[];
-	interest: Entity[];
-	knowledge: Entity[];
 }
 
 async function Sidebar({
@@ -38,7 +31,7 @@ async function Sidebar({
 	reasons,
 	interest,
 	knowledge,
-}: SidebarProps) {
+}: PreferenceProps) {
 	return (
 		<div className='flex flex-col'>
 			<ScrollArea className='w-[500px] flex-1 h-full'>
