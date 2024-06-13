@@ -3,7 +3,7 @@
 import { Session } from "next-auth";
 import { PreferenceProps } from "../dashboard/page";
 
-type StudyResource = {
+export type StudyResource = {
 	id: string;
 	name: string;
 	description: string;
@@ -50,18 +50,12 @@ const completeTwoRecommendations = async (
 	session: Session,
 	preferences: PreferenceProps
 ) => {
-	const recommendations = await createRecommendation(session, preferences);
-	if (!recommendations) {
-		throw new Error("Failed to fetch new recommendation");
-	} else if (recommendations.length < 2) {
-		const oldRecommendation = await fetchRecommendation(session, preferences);
-		if (recommendations.length === 0) {
-			return oldRecommendation;
-		} else {
-			return [recommendations[0], oldRecommendation[0]];
-		}
+	try {
+		await createRecommendation(session, preferences);
+	} catch (error) {
+		console.error(error);
 	}
-	return recommendations;
+	return await fetchRecommendation(session, preferences);
 };
 
 const fetchRecommendation = async (
@@ -117,9 +111,9 @@ const createRecommendation = async (
 	if (!response.ok) {
 		throw new Error("Failed to create recommendation");
 	}
-	const recommendation = await response.json();
+	const { recommendations } = await response.json();
 
-	return recommendation;
+	return recommendations;
 };
 
 export { fetchNewRecommendation, fetchRecommendation };
