@@ -95,6 +95,19 @@ function PreferenceCard({
 	);
 }
 
+const comparePreferences = (
+	original: { name: string; id: string }[],
+	current: { name: string; id: string }[]
+) => {
+	const newPreferences = current.filter(
+		(item) => !original.some((orig) => orig.id === item.id)
+	);
+	const removedPreferences = original.filter(
+		(item) => !current.some((curr) => curr.id === item.id)
+	);
+	return { newPreferences, removedPreferences };
+};
+
 function Sidebar({
 	priorities,
 	reasons,
@@ -138,13 +151,34 @@ function Sidebar({
 			handleCancel();
 			return;
 		}
+
+		const newPreferences = {
+			priorities: comparePreferences(tempPriorities, prioritiesParams)
+				.newPreferences,
+			reasons: comparePreferences(tempReasons, reasonsParams).newPreferences,
+			interests: comparePreferences(tempInterests, interestParams)
+				.newPreferences,
+			knowledge: comparePreferences(tempKnowledge, knowledgeParams)
+				.newPreferences,
+		};
+
+		const removedPreferences = {
+			priorities: comparePreferences(tempPriorities, prioritiesParams)
+				.removedPreferences,
+			reasons: comparePreferences(tempReasons, reasonsParams)
+				.removedPreferences,
+			interests: comparePreferences(tempInterests, interestParams)
+				.removedPreferences,
+			knowledge: comparePreferences(tempKnowledge, knowledgeParams)
+				.removedPreferences,
+		};
+
 		try {
-			await changePreferences(session.user.id, {
-				priorities: prioritiesParams,
-				reasons: reasonsParams,
-				interest: interestParams,
-				knowledge: knowledgeParams,
-			});
+			await changePreferences(
+				session.user.id,
+				newPreferences,
+				removedPreferences
+			);
 		} catch (error) {
 			handleCancel();
 			console.error(error);

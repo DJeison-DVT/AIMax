@@ -9,7 +9,7 @@ import {
 import { RotateCcw } from "lucide-react";
 import { LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import { PreferenceProps } from "../page";
+import { PreferenceProps, PreferencePropsWithSession } from "../page";
 import { Session } from "next-auth";
 import Link from "next/link";
 
@@ -55,8 +55,6 @@ function RecommendationCard({
 		</div>
 	);
 }
-
-type PreferencePropsWithSession = PreferenceProps & { session: Session };
 
 export default function MainPanel({
 	priorities,

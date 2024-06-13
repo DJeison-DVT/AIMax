@@ -10,7 +10,18 @@ async function hasPreferences(user: string) {
 	}
 }
 
-async function changePreferences(user: string, preferences: any) {
+type Preferences = {
+	priorities: { name: string; id: string }[];
+	reasons: { name: string; id: string }[];
+	interests: { name: string; id: string }[];
+	knowledge: { name: string; id: string }[];
+};
+
+async function changePreferences(
+	user: string,
+	newPreferences: Preferences,
+	removedPreferences: Preferences
+) {
 	try {
 		const response = await fetch(
 			`http://localhost:3000/api/preferences/user/${user}`,
@@ -20,13 +31,15 @@ async function changePreferences(user: string, preferences: any) {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
-					userId: user,
-					...preferences,
+					preferences: newPreferences,
+					removedPreferences: removedPreferences,
 				}),
 			}
 		);
 
-		return response.status;
+		if (!response.ok) {
+			throw new Error("Error updating preferences");
+		}
 	} catch (error) {
 		console.error(error);
 	}
