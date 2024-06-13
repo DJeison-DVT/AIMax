@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { hasPreferences } from "../lib/preferences";
 import Sidebar from "@/app/dashboard/components/Sidebar";
 import MainPanel from "./components/MainPanel";
+import { LoaderCircle } from "lucide-react";
+import { Session } from "next-auth";
 
 export interface Entity {
 	id: string;
@@ -14,6 +16,8 @@ export interface PreferenceProps {
 	interest: Entity[];
 	knowledge: Entity[];
 }
+
+export type PreferencePropsWithSession = PreferenceProps & { session: Session };
 
 const fetchPreferences = async (id: string) => {
 	const response = await fetch(
@@ -89,9 +93,12 @@ async function DashboardPage() {
 					reasons={preferences.reasons}
 					interest={preferences.interest}
 					knowledge={preferences.knowledge}
+					session={session}
 				/>
 			) : (
-				<div className='w-[500px]'>Loading...</div>
+				<div className='w-[500px]'>
+					<LoaderCircle className='animate-spin' />
+				</div>
 			)}
 		</div>
 	);

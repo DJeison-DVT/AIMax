@@ -10,4 +10,26 @@ async function hasPreferences(user: string) {
 	}
 }
 
-export { hasPreferences };
+async function changePreferences(user: string, preferences: any) {
+	try {
+		const response = await fetch(
+			`http://localhost:3000/api/preferences/user/${user}`,
+			{
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					userId: user,
+					...preferences,
+				}),
+			}
+		);
+
+		return response.status;
+	} catch (error) {
+		console.error(error);
+	}
+}
+
+export { hasPreferences, changePreferences };
